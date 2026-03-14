@@ -19,6 +19,9 @@ def load_grid(file):
                     goal=(x,y)
             grid.append(row)
 
-    print('Grid:\n',grid)
+    print("Grid:")
+    for row in grid:
+        print(" ".join(row))
+    print()
 
     return grid,start,goal
