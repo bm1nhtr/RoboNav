@@ -1,1 +1,5 @@
-todo
+__pycache__/
+*.pyc
+*.pyo
+.idea/
+results/
