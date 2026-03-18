@@ -25,8 +25,8 @@ Fonction de fitness
 
 Parametres par defaut
 ---------------------
-    pop_size    = 50   individus par generation
-    steps       = 20   mouvements par individu
+    taille_pop  = 50   individus par generation
+    nb_pas      = 20   mouvements par individu
     generations = 100  nombre de generations
 
 Interface publique
@@ -39,12 +39,12 @@ Interface publique
 import random
 
 # Mouvements cardinaux possibles : droite, gauche, bas, haut
-MOVES = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+MOUVEMENTS = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
 
 # ── Heuristique ────────────────────────────────────────────────────────────────
 
-def heuristic(a: tuple[int, int], b: tuple[int, int]) -> int:
+def heuristique(a: tuple[int, int], b: tuple[int, int]) -> int:
     """Distance de Manhattan entre deux positions.
 
     Parametres
@@ -62,55 +62,55 @@ def heuristic(a: tuple[int, int], b: tuple[int, int]) -> int:
 
 # ── Construction du chemin ────────────────────────────────────────────────────
 
-def apply_moves(
-    start:  tuple[int, int],
-    moves:  list[tuple[int, int]],
-    grid:   list[list[str]],
+def appliquer_mouvements(
+    depart:     tuple[int, int],
+    mouvements: list[tuple[int, int]],
+    grille:     list[list[str]],
 ) -> list[tuple[int, int]]:
-    """Appliquer une sequence de mouvements depuis *start* pour construire un chemin.
+    """Appliquer une sequence de mouvements depuis *depart* pour construire un chemin.
 
     Les mouvements qui sortent de la grille ou tombent sur un obstacle
     sont ignores silencieusement.
 
     Parametres
     ----------
-    start : tuple[int, int]
+    depart : tuple[int, int]
         Position initiale ``(x, y)``.
-    moves : list[tuple[int, int]]
+    mouvements : list[tuple[int, int]]
         Sequence de deplacements ``(dx, dy)`` a appliquer.
-    grid : list[list[str]]
-        Grille 2D indexee comme ``grid[y][x]``.
+    grille : list[list[str]]
+        Grille 2D indexee comme ``grille[y][x]``.
 
     Retourne
     --------
     list[tuple[int, int]]
-        Chemin construit, incluant *start*.
+        Chemin construit, incluant *depart*.
     """
-    x, y = start
-    path = [start]
+    x, y = depart
+    chemin = [depart]
 
-    for dx, dy in moves:
+    for dx, dy in mouvements:
         nx, ny = x + dx, y + dy
 
         # Verifier les limites de la grille et l'absence d'obstacle
-        if 0 <= ny < len(grid) and 0 <= nx < len(grid[0]):
-            if grid[ny][nx] != "X":
+        if 0 <= ny < len(grille) and 0 <= nx < len(grille[0]):
+            if grille[ny][nx] != "X":
                 x, y = nx, ny
-                path.append((x, y))
+                chemin.append((x, y))
 
-    return path
+    return chemin
 
 
 # ── Fitness ───────────────────────────────────────────────────────────────────
 
-def fitness(path: list[tuple[int, int]], goal: tuple[int, int]) -> float:
+def evaluer(chemin: list[tuple[int, int]], arrivee: tuple[int, int]) -> float:
     """Evaluer la qualite d'un chemin (plus le score est bas, meilleur est le chemin).
 
     Parametres
     ----------
-    path : list[tuple[int, int]]
-        Chemin construit par ``apply_moves``.
-    goal : tuple[int, int]
+    chemin : list[tuple[int, int]]
+        Chemin construit par ``appliquer_mouvements``.
+    arrivee : tuple[int, int]
         Coordonnees ``(x, y)`` de l'arrivee.
 
     Retourne
@@ -119,41 +119,41 @@ def fitness(path: list[tuple[int, int]], goal: tuple[int, int]) -> float:
         Score = distance_manhattan(derniere_case, arrivee) + 0.1 * longueur.
         Un score de 0 signifie que l'arrivee est atteinte avec le chemin minimal.
     """
-    last = path[-1]
-    distance = heuristic(last, goal)
+    derniere_case = chemin[-1]
+    distance = heuristique(derniere_case, arrivee)
     # Penalite sur la longueur pour decourager les chemins inutilement longs
-    return distance + 0.1 * len(path)
+    return distance + 0.1 * len(chemin)
 
 
 # ── Operateurs genetiques ─────────────────────────────────────────────────────
 
-def random_individual(length: int) -> list[tuple[int, int]]:
+def individu_aleatoire(nb_pas: int) -> list[tuple[int, int]]:
     """Creer un individu aleatoire (sequence de mouvements).
 
     Parametres
     ----------
-    length : int
+    nb_pas : int
         Nombre de mouvements dans l'individu.
 
     Retourne
     --------
     list[tuple[int, int]]
-        Sequence de *length* deplacements choisis aleatoirement dans MOVES.
+        Sequence de *nb_pas* deplacements choisis aleatoirement dans MOUVEMENTS.
     """
-    return [random.choice(MOVES) for _ in range(length)]
+    return [random.choice(MOUVEMENTS) for _ in range(nb_pas)]
 
 
-def mutate(
-    individual: list[tuple[int, int]],
-    rate: float = 0.1,
+def muter(
+    individu: list[tuple[int, int]],
+    taux:     float = 0.1,
 ) -> list[tuple[int, int]]:
     """Muter un individu en remplacant aleatoirement certains mouvements.
 
     Parametres
     ----------
-    individual : list[tuple[int, int]]
+    individu : list[tuple[int, int]]
         Sequence de mouvements a muter.
-    rate : float
+    taux : float
         Probabilite de mutation par mouvement (defaut : 10 %).
 
     Retourne
@@ -162,12 +162,12 @@ def mutate(
         Nouvel individu mute (l'original n'est pas modifie).
     """
     return [
-        random.choice(MOVES) if random.random() < rate else move
-        for move in individual
+        random.choice(MOUVEMENTS) if random.random() < taux else mouvement
+        for mouvement in individu
     ]
 
 
-def crossover(
+def croisement(
     parent1: list[tuple[int, int]],
     parent2: list[tuple[int, int]],
 ) -> list[tuple[int, int]]:
@@ -183,33 +183,33 @@ def crossover(
     list[tuple[int, int]]
         Enfant constitue du debut de *parent1* et de la fin de *parent2*.
     """
-    cut = random.randint(0, len(parent1) - 1)
-    return parent1[:cut] + parent2[cut:]
+    point_coupe = random.randint(0, len(parent1) - 1)
+    return parent1[:point_coupe] + parent2[point_coupe:]
 
 
 # ── Algorithme genetique principal ────────────────────────────────────────────
 
 def genetic_search(
-    grid:        list[list[str]],
-    start:       tuple[int, int],
-    goal:        tuple[int, int],
-    pop_size:    int   = 50,
-    steps:       int   = 20,
-    generations: int   = 100,
+    grille:     list[list[str]],
+    depart:     tuple[int, int],
+    arrivee:    tuple[int, int],
+    taille_pop: int = 50,
+    nb_pas:     int = 20,
+    generations: int = 100,
 ) -> list[tuple[int, int]]:
-    """Trouver un chemin de *start* a *goal* par algorithme genetique.
+    """Trouver un chemin de *depart* a *arrivee* par algorithme genetique.
 
     Parametres
     ----------
-    grid : list[list[str]]
-        Grille 2D indexee comme ``grid[y][x]``.
-    start : tuple[int, int]
+    grille : list[list[str]]
+        Grille 2D indexee comme ``grille[y][x]``.
+    depart : tuple[int, int]
         Coordonnees ``(x, y)`` du point de depart.
-    goal : tuple[int, int]
+    arrivee : tuple[int, int]
         Coordonnees ``(x, y)`` du point d'arrivee.
-    pop_size : int
+    taille_pop : int
         Nombre d'individus par generation (defaut : 50).
-    steps : int
+    nb_pas : int
         Nombre de mouvements par individu (defaut : 20).
     generations : int
         Nombre de generations d'evolution (defaut : 100).
@@ -220,42 +220,42 @@ def genetic_search(
         Meilleur chemin trouve. Peut ne pas etre optimal selon les parametres.
     """
     # Initialisation de la population avec des individus aleatoires
-    population = [random_individual(steps) for _ in range(pop_size)]
+    population = [individu_aleatoire(nb_pas) for _ in range(taille_pop)]
 
     for _generation in range(generations):
         # Evaluer chaque individu et construire son chemin
-        scored = []
-        for individual in population:
-            path  = apply_moves(start, individual, grid)
-            score = fitness(path, goal)
+        scores = []
+        for ind in population:
+            chemin = appliquer_mouvements(depart, ind, grille)
+            score  = evaluer(chemin, arrivee)
 
             # Arret immediat si l'arrivee est atteinte
-            if heuristic(path[-1], goal) == 0:
-                return path
+            if heuristique(chemin[-1], arrivee) == 0:
+                return chemin
 
-            scored.append((score, individual))
+            scores.append((score, ind))
 
         # Trier par score croissant (meilleur score = plus bas)
-        scored.sort(key=lambda x: x[0])
+        scores.sort(key=lambda x: x[0])
 
         # Selection des 10 meilleurs individus (elitisme)
-        elite = [ind for _, ind in scored[:10]]
+        elite = [ind for _, ind in scores[:10]]
 
         # Construction de la nouvelle population
-        new_population = list(elite)  # on conserve l'elite
+        nouvelle_population = list(elite)  # on conserve l'elite
 
         # Completer avec des enfants issus de croisement + mutation
-        while len(new_population) < pop_size:
-            parent1 = random.choice(elite)
-            parent2 = random.choice(elite)
-            child   = mutate(crossover(parent1, parent2))
-            new_population.append(child)
+        while len(nouvelle_population) < taille_pop:
+            p1    = random.choice(elite)
+            p2    = random.choice(elite)
+            enfant = muter(croisement(p1, p2))
+            nouvelle_population.append(enfant)
 
-        population = new_population
+        population = nouvelle_population
 
     # Aucune solution parfaite trouvee : retourner le meilleur chemin final
-    best_individual = min(
+    meilleur = min(
         population,
-        key=lambda ind: fitness(apply_moves(start, ind, grid), goal),
+        key=lambda ind: evaluer(appliquer_mouvements(depart, ind, grille), arrivee),
     )
-    return apply_moves(start, best_individual, grid)
+    return appliquer_mouvements(depart, meilleur, grille)

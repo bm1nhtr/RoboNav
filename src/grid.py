@@ -113,14 +113,14 @@ def get_neighbors(
     >>> get_neighbors(grille, (0, 0))
     [(1, 0)]
     """
-    x, y  = pos
-    lignes = len(grille)
-    cols   = len(grille[0]) if lignes > 0 else 0
+    x, y  = pos                                    # coordonnees de la case courante
+    lignes = len(grille)                           # nombre de lignes de la grille
+    cols   = len(grille[0]) if lignes > 0 else 0  # nombre de colonnes (0 si grille vide)
 
     return [
         (x + dx, y + dy)
-        for dx, dy in _DIRECTIONS
-        if 0 <= x + dx < cols
-        and 0 <= y + dy < lignes
-        and grille[y + dy][x + dx] != OBSTACLE
+        for dx, dy in _DIRECTIONS          # pour chaque direction cardinale
+        if 0 <= x + dx < cols              # verif : x dans les bornes de la grille
+        and 0 <= y + dy < lignes           # verif : y dans les bornes de la grille
+        and grille[y + dy][x + dx] != OBSTACLE  # verif : case non obstacle
     ]
