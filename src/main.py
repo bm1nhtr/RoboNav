@@ -90,9 +90,9 @@ def executer_algorithme(
     return chemin, explores, duree
 
 
-# ── Fonction principale ────────────────────────────────────────────────────────
+# ── Fonction execution complete ────────────────────────────────────────────────────────
 
-def main() -> None:
+def execution_complete() -> None:
     for fichier in FICHIERS_GRILLE:
         grille, depart, arrivee = load_grid(os.path.join(REP_DATA, fichier))
         nom_grille = fichier.replace(".txt", "")
@@ -137,6 +137,118 @@ def main() -> None:
             sauver = os.path.join(REP_SORTIE, f"resultats_{nom_grille}_comparaison.png"),
         )
 
+# ── Menu interactif ───────────────────────────────────────────────────────────
+
+def afficher_menu():
+    print("\n===== MENU =====")
+    print("1 - Mode interactif")
+    print("2 - Affichage complet (tous les algos)")
+    print("3 - Quitter")
+
+
+# ── Fonction interactive principal ───────────────────────────────────────────────────────────
+
+def main():
+
+    while True:
+
+        afficher_menu()
+        choix = input("Votre choix : ")
+
+        # ── Mode interactif ────────────────────────────────────────────────
+        if choix == "1":
+
+            # ── choix de l'algorithme ───────────────────────────────
+            print("\nChoisir un algorithme :")
+            print("1 - A*")
+            print("2 - Glouton")
+            print("3 - Genetique")
+
+            choix_algo = input("Votre choix : ")
+
+            if choix_algo == "1":
+                nom_algo = "A*"
+            elif choix_algo == "2":
+                nom_algo = "Glouton"
+            elif choix_algo == "3":
+                nom_algo = "Genetique"
+            else:
+                print("Choix invalide")
+                continue
+
+            # ── choix de la grille ───────────────────────────────
+            print("\nChoisir une grille :")
+            print("1 - grid1")
+            print("2 - grid2")
+            print("3 - grid3")
+            print("4 - Toutes les grilles")
+
+            choix_grille = input("Votre choix : ")
+
+            fn_algo, _ = ALGORITHMES[nom_algo]
+
+            # ── cas : toutes les grilles ─────────────────────────
+            if choix_grille == "4":
+
+                for fichier in FICHIERS_GRILLE:
+
+                    print("\n==============================")
+                    print(f"{nom_algo} - {fichier}")
+                    print("==============================")
+
+                    grille, depart, arrivee = load_grid(os.path.join(REP_DATA, fichier))
+
+                    chemin, explores, _ = executer_algorithme(
+                        nom_algo, fn_algo, grille, depart, arrivee
+                    )
+
+                    afficher_chemin(
+                        grille, chemin, depart, arrivee,
+                        titre=nom_algo,
+                        explores=explores
+                    )
+
+            # ── cas : une seule grille ─────────────────────────
+            else:
+
+                if choix_grille == "1":
+                    fichier = "grid1.txt"
+                elif choix_grille == "2":
+                    fichier = "grid2.txt"
+                elif choix_grille == "3":
+                    fichier = "grid3.txt"
+                else:
+                    print("Choix invalide")
+                    continue
+
+                grille, depart, arrivee = load_grid(os.path.join(REP_DATA, fichier))
+
+                chemin, explores, _ = executer_algorithme(
+                    nom_algo, fn_algo, grille, depart, arrivee
+                )
+
+                afficher_chemin(
+                    grille, chemin, depart, arrivee,
+                    titre=nom_algo,
+                    explores=explores
+                )
+
+        # ── Mode complet (code original) ───────────────────────────────────
+        elif choix == "2":
+
+            print("\nExecution complete...\n")
+            execution_complete()
+
+        # ── Quitter ────────────────────────────────────────────────────────
+        elif choix == "3":
+            print("Au revoir !")
+            break
+
+        else:
+            print("Choix invalide")
+
+
+# ── Lancement ─────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     main()
