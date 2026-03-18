@@ -1,62 +1,115 @@
 # ProjetBDMLoptimisation
 
-Algorithmes de recherche de chemin sur grilles 2D — S6 Complexite algorithmique, Efrei Paris.
+Algorithmes de recherche de chemin sur grilles 2D avec obstacles.
+Projet academique — S6 Complexite algorithmique, Efrei Paris.
 
-Auteurs : Binh Minh et Teddy
+---
 
 ## Structure
 
 ```
 ProjetBDMLoptimisation/
 ├── data/
-│   ├── grid1.txt
+│   ├── grid1.txt              # Grilles de test 4 x 6
 │   ├── grid2.txt
 │   └── grid3.txt
-├── results/                  # Images generees (cree automatiquement)
+├── results/                   # Images generees automatiquement
+│   ├── resultats_{grille}_{algo}.png
+│   └── resultats_{grille}_comparaison.png
 ├── src/
-│   ├── main.py               # Point d'entree
-│   ├── grid.py               # load_grid() + get_neighbors()
-│   ├── visualizer.py         # Visualisation (terminal + matplotlib)
+│   ├── main.py                # Point d'entree — menu interactif + mode complet
+│   ├── grid.py                # load_grid() + get_neighbors()
+│   ├── visualizer.py          # Visualisation terminal (ASCII) et graphique (matplotlib)
 │   └── algorithms/
-│       ├── astar.py          # A* — f(n) = g(n) + h(n)
-│       ├── greedy.py         # Glouton Best-First
-│       └── genetic.py        # Algorithmique genetique
+│       ├── astar.py           # A* — f(n) = g(n) + h(n), heuristique Manhattan
+│       ├── greedy.py          # Glouton Best-First — choisit le voisin le plus proche de G
+│       └── genetic.py         # Genetique — evolution d'une population de sequences de mouvements
+├── RESULTATS.md               # Tableaux de comparaison et analyse
 ├── requirements.txt
 └── README.md
 ```
 
+---
+
+## Implementation
+
+### Modele de grille (`grid.py`)
+
+La grille est un tableau 2D `grille[y][x]` charge depuis un fichier `.txt`.
+Chaque case est un token : `S` (depart), `G` (arrivee), `X` (obstacle), `0` (libre).
+
+`get_neighbors(grille, pos)` retourne les 4 voisins cardinaux accessibles
+(hors limites et obstacles exclus).
+
+### A\* (`algorithms/astar.py`)
+
+Recherche du chemin **optimal** via `f(n) = g(n) + h(n)` :
+- `g(n)` : nombre de pas depuis le depart
+- `h(n)` : distance de Manhattan vers l'arrivee (admissible et consistante)
+
+Utilise un tas-min (`heapq`) pour la file de priorite.
+Retourne le chemin solution et l'ensemble des cases explorees.
+
+### Glouton (`algorithms/greedy.py`)
+
+A chaque etape, choisit le voisin minimisant `h(n)` sans tenir compte de `g(n)`.
+Rapide mais non optimal et non complet (pas de backtracking).
+
+### Genetique (`algorithms/genetic.py`)
+
+Fait evoluer une population de sequences de mouvements sur 100 generations :
+- **Fitness** : `distance_manhattan(derniere_case, arrivee) + 0.1 x longueur`
+- **Selection** : conservation des 10 meilleurs (elitisme)
+- **Croisement** : monopoint entre deux parents
+- **Mutation** : remplacement aleatoire au taux de 10 %
+
+### Visualiseur (`visualizer.py`)
+
+Trois fonctions utilisables par tous les algorithmes :
+- `afficher_chemin(...)` : affichage ASCII colore dans le terminal
+- `tracer_grille(...)` : figure matplotlib sauvegardee dans `results/`
+- `comparer_resultats(...)` : comparaison cote a cote de plusieurs algorithmes
+
+---
+
+## Resultats
+
+### Lire l'analyse
+
+Ouvrir **`RESULTATS.md`** — il contient :
+- les tableaux de comparaison (longueur du chemin, temps d'execution) pour chaque grille
+- l'explication de pourquoi le glouton n'est pas toujours optimal
+- l'explication du fonctionnement et des garanties de A\*
+- les avantages et inconvenients de l'algorithme genetique
+- une conclusion comparative
+
+### Lire les images
+
+Les captures sont dans **`results/`**, generees automatiquement au lancement :
+
+| Fichier | Contenu |
+|---------|---------|
+| `resultats_{grille}_astar.png` | Chemin trouve par A\* |
+| `resultats_{grille}_glouton.png` | Chemin trouve par le glouton |
+| `resultats_{grille}_genetique.png` | Chemin trouve par le genetique |
+| `resultats_{grille}_comparaison.png` | Les trois algorithmes cote a cote |
+
+Legende des couleurs sur les images :
+
+| Couleur | Signification |
+|---------|---------------|
+| Bleu | Depart (S) |
+| Rose | Arrivee (G) |
+| Turquoise | Cases du chemin solution |
+| Ambre | Cases explorees (A\* uniquement) |
+| Noir | Obstacle |
+
+---
+
 ## Lancement
 
 ```bash
-# Installer les dependances
 pip install -r requirements.txt
-
-# Lancer depuis src/
 cd src
 python main.py
 ```
-
-Les images sont sauvegardees dans `results/` :
-- `resultats_{grille}_{algo}.png` — chemin par algorithme
-- `resultats_{grille}_comparaison.png` — comparaison cote a cote
-
-## Algorithmes
-
-| Algorithme | Fichier | Statut |
-|------------|---------|--------|
-| A\* | `algorithms/astar.py` | Implemente |
-| Glouton | `algorithms/greedy.py` | Implemente |
-| Genetique | `algorithms/genetic.py` | Implemente |
-
-## Ajouter un algorithme
-
-1. Creer `src/algorithms/mon_algo.py` avec la fonction :
-   ```python
-   def mon_algo_search(grid, start, goal) -> list | tuple[list, set]:
-       ...
-   ```
-2. L'enregistrer dans `ALGORITHMES` (dans `main.py`) :
-   ```python
-   from algorithms.mon_algo import mon_algo_search
-   ALGORITHMES["Mon Algo"] = (mon_algo_search, "mon_algo")
-   ```
