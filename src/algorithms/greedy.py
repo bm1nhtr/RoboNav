@@ -27,7 +27,7 @@ Interface publique
 
 # ── Heuristique ────────────────────────────────────────────────────────────────
 
-def heuristic(a: tuple[int, int], b: tuple[int, int]) -> int:
+def heuristique(a: tuple[int, int], b: tuple[int, int]) -> int:
     """Distance de Manhattan entre deux cases.
 
     Parametres
@@ -98,7 +98,7 @@ def greedy_search(
             return path
 
         # Selectionner le voisin le plus proche de l'arrivee
-        best_neighbor = min(valid_neighbors, key=lambda n: heuristic(n, goal))
+        best_neighbor = min(valid_neighbors, key=lambda n: heuristique(n, goal))
 
         path.append(best_neighbor)
         current = best_neighbor
