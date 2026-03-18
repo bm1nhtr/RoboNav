@@ -25,7 +25,7 @@ Interface publique
 """
 
 
-# ── Heuristique ────────────────────────────────────────────────────────────────
+# ── Heuristique ───────────────────────────────────────────────────────────────
 
 def heuristique(a: tuple[int, int], b: tuple[int, int]) -> int:
     """Distance de Manhattan entre deux cases.

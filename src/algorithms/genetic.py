@@ -33,7 +33,7 @@ Interface publique
 ------------------
     genetic_search(grille, depart, arrivee) -> chemin
 
-    Signature compatible avec le pipeline de ``main.py``.
+    Signature compatible avec le pipeline de ``main.py``
 """
 
 import random
@@ -42,7 +42,7 @@ import random
 MOUVEMENTS = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
 
-# ── Heuristique ────────────────────────────────────────────────────────────────
+# ── Heuristique ───────────────────────────────────────────────────────────────
 
 def heuristique(a: tuple[int, int], b: tuple[int, int]) -> int:
     """Distance de Manhattan entre deux positions.

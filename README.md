@@ -2,6 +2,8 @@
 
 Algorithmes de recherche de chemin sur grilles 2D — S6 Complexite algorithmique, Efrei Paris.
 
+Auteurs : Binh Minh et Teddy
+
 ## Structure
 
 ```
