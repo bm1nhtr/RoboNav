@@ -85,7 +85,7 @@ Ouvrir **`RESULTATS.md`** — il contient :
 
 ### Lire les images
 
-Les captures sont dans **`results/`**, generees automatiquement au lancement :
+Les captures sont dans **`results/`**, generees en choisissant **option 2** au lancement :
 
 | Fichier | Contenu |
 |---------|---------|
@@ -113,3 +113,14 @@ pip install -r requirements.txt
 cd src
 python main.py
 ```
+
+Le programme affiche un menu :
+
+```
+===== MENU =====
+1 - Mode interactif      # choisir un algorithme et une grille, affichage terminal uniquement
+2 - Affichage complet    # lance les 3 algorithmes sur les 3 grilles et sauvegarde les images
+3 - Quitter
+```
+
+> **Pour generer les images dans `results/`, choisir l'option 2.**
